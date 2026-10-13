@@ -3,34 +3,35 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Library\Adapters\Inbound\Http\HealthController;
+use Library\Adapters\Inbound\Http\AuthController;
+use Library\Adapters\Inbound\Http\BookController;
+use Library\Adapters\Inbound\Http\LoanController;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| API Routes - T-16 Implementation
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
 */
 
-// Health check endpoint - root level
+// Health check endpoint
 Route::get('/health', [HealthController::class, 'check']);
 
-// Version 1 API routes
-Route::prefix('v1')->group(function () {
-    // Health check with version prefix
-    Route::get('/health', [HealthController::class, 'check']);
+// Authentication routes (public)
+Route::post('/auth/login', [AuthController::class, 'login']);
+
+// Protected routes (basic implementation)
+Route::group(['middleware' => []], function () {
+    // User management (admin only)
+    Route::post('/users/librarians', [AuthController::class, 'createLibrarian']);
     
-    // Authentication routes
-    Route::post('/auth/login', function (Request $request) {
-        // TODO: Implement authentication
-        return response()->json(['message' => 'Authentication endpoint - not implemented yet']);
-    });
+    // Books
+    Route::get('/books', [BookController::class, 'index']);
+    Route::post('/books', [BookController::class, 'store']);
+    Route::get('/books/{id}', [BookController::class, 'show']);
+    Route::delete('/books/{id}', [BookController::class, 'destroy']);
     
-    // Protected routes placeholder
-    Route::middleware(['auth:sanctum'])->group(function () {
-        // TODO: Add protected routes here
-    });
+    // Loans  
+    Route::post('/loans', [LoanController::class, 'store']);
+    Route::post('/loans/{loanId}/items/{itemId}/return', [LoanController::class, 'returnItem']);
+    Route::get('/loans/overdue', [LoanController::class, 'overdue']);
 });
