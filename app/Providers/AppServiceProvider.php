@@ -24,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
                 \App\Console\Commands\VerifyReturnBooksCommand::class,
                 \App\Console\Commands\VerifyCoverStorageCommand::class,
                 \App\Console\Commands\VerifyHttpRoutesCommand::class,
+                \App\Console\Commands\VerifySystemStartupCommand::class,
             ]);
         }
     }
