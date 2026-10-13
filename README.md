@@ -1,50 +1,130 @@
-# test-manager-library-3145556-api
+# Manager Library API
 
-> **Prueba técnica · Ficha ADSO 3145556**
-> Entrega: **martes 13 de octubre de 2026, a las 5:00 p. m.** (17:00, hora Colombia).
+Sistema de gestión de biblioteca desarrollado con Laravel siguiendo arquitectura hexagonal.
 
-Este repositorio es el **backend** de *Manager Library*, en **PHP con Laravel**. **Empieza vacío a propósito**: se construye en el fork de cada aprendiz.
+## Estructura del Proyecto
 
-## Instrucciones
+```
+src/Library/
+├── domain/              # Entidades y objetos de valor (T-03 en adelante)
+├── application/         # Casos de uso y puertos (T-07 en adelante)
+│   ├── ports/outbound/  # Interfaces que el core define
+│   └── services/        # Servicios de aplicación
+├── adapters/            # Implementaciones concretas
+│   ├── inbound/http/    # Controladores HTTP
+│   └── outbound/        # Persistencia, seguridad, storage
+└── bootstrap/composition/ # Único punto de composición
+```
 
-Cada aprendiz debe **crear el fork** de los seis repositorios del proyecto y **resolver el proyecto
-con el spec planteado**.
+## Estado de Implementación
 
-1. Hacer fork, a su cuenta de GitHub, de cada repositorio de la tabla del final.
-2. Leer el spec en [`test-manager-library-3145556-docs`](https://github.com/code-sena/test-manager-library-3145556-docs).
-   Se entrega en dos versiones: `spec-python/` y `spec-.net/`.
-3. Desarrollar en los forks.
+### ✅ T-01: Esqueleto y Health Check (COMPLETADA)
+- Laravel 10 con estructura hexagonal
+- Endpoint `GET /health` retorna `{"status":"ok"}`
+- Docker configurado con PHP 8.2 y PostgreSQL
+- Namespace `Library\` configurado
 
-## El reto se desarrolla con React y PHP (Laravel)
+### ✅ T-02: Migración inicial (COMPLETADA)
+- 6 tablas creadas: `category`, `book`, `member`, `user`, `loan`, `loan_item`
+- Schema `library` con todas las restricciones
+- 5 categorías fijas sembradas con UUIDs literales
+- Sin columnas DEFAULT (domain establece valores)
+- Índices para patrones de acceso configurados
 
-El spec está escrito para Python y para .NET, pero el reto **no** se hace en esos lenguajes:
+## Configuración de Base de Datos
 
-| Capa | Tecnología del reto |
-|---|---|
-| Frontend | React |
-| Backend | PHP con Laravel |
+### PostgreSQL Configuration
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=manager_library
+DB_USERNAME=postgres
+DB_PASSWORD=
+```
 
-Lo que el spec define sobre el negocio —historias, criterios de aceptación, reglas, contrato de la
-API, modelo de datos— se respeta. Lo que define sobre la tecnología se traduce a React y Laravel.
+### Variables Específicas del Sistema
+```env
+JWT_SECRET=your-jwt-secret-here
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin123
+CORS_ORIGIN=http://localhost:5173
+COVERS_DIR=./var/covers
+```
 
-## La prueba no consiste en escribir el código
+## Comandos de Verificación
 
-El propósito principal es ver la **capacidad de desempeño con SDD** (*Spec-Driven Development*,
-desarrollo guiado por especificación): cómo se lee, se interpreta y se aplica una especificación
-para llevarla a un stack distinto. El código es el medio, no el fin.
+### Verificar T-02 (Migración inicial)
+```bash
+# Ejecutar migraciones
+php artisan migrate
 
-## Entrega
+# Verificar evidencia T-02
+php artisan library:verify-schema
+```
 
-Cuenta lo que quede **subido a los forks antes de las 5:00 p. m.** (17:00). Lo que llegue después no se revisa.
-No hay prórroga: suban avances parciales con commits pequeños durante la prueba.
+Este comando ejecuta las consultas de `data-model.md` §10 para verificar:
+- ✅ Todas las columnas existen con tipos correctos
+- ✅ Ninguna columna tiene DEFAULT
+- ✅ Todas las restricciones (PK, FK, CHECK) están creadas
+- ✅ Todos los índices están en su lugar
+- ✅ Las 5 categorías están sembradas
 
-## Los seis repositorios
+### Ejecutar con Docker
+```bash
+# Construir imagen
+docker build -t manager-library-api .
 
-| Repositorio | Qué va ahí |
-|---|---|
-| [`test-manager-library-3145556-docs`](https://github.com/code-sena/test-manager-library-3145556-docs) | El spec: `spec-python/` y `spec-.net/` |
-| [`test-manager-library-3145556-api`](https://github.com/code-sena/test-manager-library-3145556-api) | Backend en PHP (Laravel) |
-| [`test-manager-library-3145556-app`](https://github.com/code-sena/test-manager-library-3145556-app) | Frontend en React |
-| [`test-manager-library-3145556-page`](https://github.com/code-sena/test-manager-library-3145556-page) | Sitio público estático de presentación |
-| [`test-manager-library-3145556-infra`](https://github.com/code-sena/test-manager-library-3145556-infra) | Contenedores, red, volúmenes y motor de base de datos vacío |
-| [`test-manager-library-3145556-tool`](https://github.com/code-sena/test-manager-library-3145556-tool) | Utilidades: sembrador de datos de demostración |
+# Ejecutar contenedor
+docker run -p 8000:8000 manager-library-api
+```
+
+## Endpoints Disponibles
+
+### Health Check
+- `GET /health` - Retorna `{"status":"ok"}`
+- `GET /api/v1/health` - Mismo endpoint con versionado
+
+## Principios Arquitecturales
+
+Sigue los 12 artículos de `constitution.md`:
+
+1. **Dominio puro** - Sin dependencias externas
+2. **Puertos declarados** - El core define sus necesidades
+3. **Composición única** - Un solo punto de ensamblaje
+4. **SOLID aplicado** - Principios verificables
+5. **Migraciones dueñas** - Schema vive en migraciones
+6. **Invariantes en base** - CHECK constraints como barrera
+7. **Estados calculados** - No columnas derivadas
+8. **Valores congelados** - Historial inmutable
+9. **Sin secretos** - Todo viene del entorno
+10. **El motor gana** - Base de datos es autoridad
+11. **Idioma consistente** - Código en inglés, mensajes en español
+12. **Evidencia requerida** - Todo task con verificación
+
+## Próximas Tareas
+
+- T-03: Objetos de valor (Isbn, Quantity, DateRange)
+- T-04: Dominio Book (Withdraw, Restock, baja lógica)
+- T-05: Dominio Loan (AddItem, ReturnItem, estados calculados)
+- ...hasta T-23
+
+## Desarrollo
+
+```bash
+# Instalar dependencias
+composer install
+
+# Configurar entorno
+cp .env.example .env
+php artisan key:generate
+
+# Ejecutar migraciones
+php artisan migrate
+
+# Verificar schema
+php artisan library:verify-schema
+
+# Ejecutar servidor
+php artisan serve
+```

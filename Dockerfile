@@ -24,7 +24,8 @@ WORKDIR /var/www/html
 # Copy composer files
 COPY composer.json composer.lock* ./
 
-# Install PHP dependencies
+# Install PHP dependencies (including pgsql driver)
+RUN composer require doctrine/dbal --no-scripts --no-autoloader
 RUN composer install --no-scripts --no-autoloader --no-dev
 
 # Copy application code
