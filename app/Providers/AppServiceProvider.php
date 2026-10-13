@@ -25,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
                 \App\Console\Commands\VerifyCoverStorageCommand::class,
                 \App\Console\Commands\VerifyHttpRoutesCommand::class,
                 \App\Console\Commands\VerifySystemStartupCommand::class,
+                \App\Console\Commands\VerifyDomainConstraintsCommand::class,
             ]);
         }
     }
