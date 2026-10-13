@@ -20,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
                 \App\Console\Commands\VerifyMemberUserDomainCommand::class,
                 \App\Console\Commands\VerifyAuthenticationServicesCommand::class,
                 \App\Console\Commands\VerifyBookServicesCommand::class,
+                \App\Console\Commands\VerifyLendBooksCommand::class,
             ]);
         }
     }
