@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
                 \App\Console\Commands\VerifyBookServicesCommand::class,
                 \App\Console\Commands\VerifyLendBooksCommand::class,
                 \App\Console\Commands\VerifyReturnBooksCommand::class,
+                \App\Console\Commands\VerifyCoverStorageCommand::class,
             ]);
         }
     }
