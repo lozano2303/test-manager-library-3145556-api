@@ -11,7 +11,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \App\Console\Commands\VerifyDatabaseSchemaCommand::class,
+                \App\Console\Commands\VerifyDomainValueObjectsCommand::class,
+                \App\Console\Commands\VerifyBookDomainCommand::class,
+                \App\Console\Commands\VerifyLoanDomainCommand::class,
+                \App\Console\Commands\VerifyMemberUserDomainCommand::class,
+                \App\Console\Commands\VerifyAuthenticationServicesCommand::class,
+                \App\Console\Commands\VerifyBookServicesCommand::class,
+            ]);
+        }
     }
 
     /**
